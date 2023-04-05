@@ -1,7 +1,5 @@
 import openai
 
-# OPENAI_KEY = "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"
-
 def compute_embedding(text, model="text-embedding-ada-002"):
     # Clean the text a bit to generate more accurate embeddings with less noise
     text = text.replace("\n", " ")
