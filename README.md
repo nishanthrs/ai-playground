@@ -37,8 +37,14 @@ yt-dlp --ffmpeg-location ffmpeg  --extract-audio --audio-format wav --audio-qual
 ffmpeg -i <input_name>.wav -ar 16000 -ac 1 -c:a pcm_s16le <output_name>.wav
 ```
 [Docs](https://github.com/yt-dlp/yt-dlp#usage-and-options)
-NOTE: Alias ffmpeg path so you don't have to type out the entire path:
-`alias ffmpeg='/Users/nishanthrs/ffmpeg'` in `.bash_profile`
+NOTE: Add ffmpeg to path:
+```
+sudo cp ./ffmpeg /usr/local/bin
+sudo chmod ugo+x /usr/local/bin/ffmpeg
+export PATH="/usr/local/bin:$PATH"
+# Restart terminal
+which ffmpeg
+```
 
 ### Using whisper.cpp on Mac M1:
 ```bash
@@ -48,3 +54,11 @@ make
 ```
 
 [List of Whisper Models in GGML Format](https://huggingface.co/ggerganov/whisper.cpp)
+
+### Performance
+* Video download and processing time: ~0.8 - 1 sec
+* Transcription of 13:28 video:
+    * Python API (num_procs=4): 1286.38 seconds (over 20 mins!)
+    * Python API (num_procs=1): 942.03 seconds
+    * Bash command: 56.07 seconds
+* Why tf is the python API for whisper.cpp so much slower than the raw bash command??
