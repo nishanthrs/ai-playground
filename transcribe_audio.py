@@ -32,7 +32,7 @@ def download_audio_bash(youtube_url: str) -> None:
     print(f"Video download time: {end_time - start_time} seconds")
 
 
-def process_audio(input_audio_filepath: str) -> Any:
+def process_audio_py(input_audio_filepath: str, output_audio_filepath: str) -> Any:
     start_time = time.time()
     try:
         sample_rate = "16k"
@@ -40,7 +40,7 @@ def process_audio(input_audio_filepath: str) -> Any:
             input_audio_filepath,
             threads=0,
         ).output(
-            "output.wav",
+            output_audio_filepath,
             format="s16le",
             acodec="pcm_s16le",
             ac=1,
@@ -51,12 +51,12 @@ def process_audio(input_audio_filepath: str) -> Any:
             capture_stderr=True
         )
     except ffmpeg.Error as e:
-        raise RuntimeError(f"Failed to load audio")
-    end_time = time.time()
-    print(f"Video download and processing time: {end_time - start_time}")
+        raise RuntimeError(f"Failed to load audio: {e.stderr.decode()}") from e
     youtube_vid_audio_bits = np.frombuffer(
         youtube_vid_output, dtype=np.int16
     ).flatten().astype(np.float32) / 32768.0
+    end_time = time.time()
+    print(f"Video download and processing time: {end_time - start_time}")
     return youtube_vid_audio_bits
 
 
@@ -112,7 +112,6 @@ def transcribe_audio_bash(audio_input_filepath: str, output_filepath: str) -> No
 
 
 def main():
-    whisper_model = load_stt_model("whisper.cpp/models/ggml-small.en.bin")
     # ~3.5 seconds
     download_audio_bash("https://www.youtube.com/watch?v=l-wUKu_V2Lk&ab_channel=WIRED")
     # ~4 seconds
@@ -122,8 +121,10 @@ def main():
     # ~115 seconds
     transcribe_audio_bash("output_1.wav", "output_1")
 
-    # audio_bits = process_audio(
+    # whisper_model = load_stt_model("whisper.cpp/models/ggml-small.en.bin")
+    # audio_bits = process_audio_py(
     #     "sample_audios/How Animators Created the Spider-Verse ｜ WIRED [l-wUKu_V2Lk].wav",
+    #     "output.wav"
     # )
     # transcribe_audio_py(whisper_model, audio_bits, "How_Animators_Created_the_Spiderverse.txt")
 
