@@ -55,6 +55,14 @@ make
 
 [List of Whisper Models in GGML Format](https://huggingface.co/ggerganov/whisper.cpp)
 
+### Typesense
+* Followed [installation docs](https://typesense.org/docs/guide/install-typesense.html#mac-via-homebrew)
+* Start typesense server:
+```
+./typesense-server --data-dir=$(pwd)/typesense-data --api-key=$TYPESENSE_API_KEY --enable-cors
+```
+* Install Python client: `pip3 install typesense`
+
 ### Performance
 * Video download and processing time: ~0.8 - 1 sec
 * Transcription of 13:28 video:
