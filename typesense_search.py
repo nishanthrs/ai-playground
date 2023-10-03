@@ -27,5 +27,5 @@ def init_collection(client: typesense.Client) -> None:
     print(f"Initialized new collection: {init_collection_response}")
 
 def sync_caption_data_to_collection(client: typesense.Client) -> None:
-    # TODO: Sync data from transcription files to typesense collection
+    """TODO: Sync data from transcription files to typesense collection"""
     pass

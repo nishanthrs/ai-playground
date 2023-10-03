@@ -19,6 +19,7 @@ ffmpeg-python
 whispercpp
 numpy
 openai
+yt-dlp
 ```
 NOTE: [`whispercpp` Python bindings lib](https://github.com/aarnphm/whispercpp)
 Use `pip install git+https://github.com/aarnphm/whispercpp.git -vv` to install the latest version.
@@ -32,7 +33,16 @@ python3 open_ai_embeddings_gen.py
 ### Using yt-dlp Audio on Mac M1:
 ```bash
 # Download Youtube video with highest quality as .wav file
-yt-dlp --ffmpeg-location ffmpeg  --extract-audio --audio-format wav --audio-quality 0 "<youtube_url>"
+yt-dlp --ffmpeg-location /opt/local/bin/ffmpeg  --extract-audio --audio-format wav --audio-quality 0 "<youtube_url>"
+# Download from multiple links in parallel (install GNU parallel)
+parallel --jobs 4 yt-dlp --ffmpeg-location /opt/local/bin/ffmpeg  --extract-audio --audio-format wav --audio-quality 0 ::: "<youtube_url_1>" "<youtube_url_2>" ... "<youtube_url_n>"
+parallel -j+0 --progress -a links.txt yt-dlp --ffmpeg-location /opt/local/bin/ffmpeg --extract-audio --audio-format wav --audio-quality 0
+# -a <file> will execute the following commmand with each line as input in parallel
+# -j+0 will run with # jobs = # CPU cores + 0
+# Multiple ::: will generate all combinations of input (via nested loop)
+# Pipe input: find example.* -print | parallel echo File
+# GNU parallel documentation: https://zenodo.org/record/1146014
+
 # Convert to 16 khz (whisper.cpp only works on 16-bit wav files)
 ffmpeg -i <input_name>.wav -ar 16000 -ac 1 -c:a pcm_s16le <output_name>.wav
 ```
@@ -62,6 +72,9 @@ make
 ./typesense-server --data-dir=$(pwd)/typesense-data --api-key=$TYPESENSE_API_KEY --enable-cors
 ```
 * Install Python client: `pip3 install typesense`
+* Future resources to look into:
+  * [Search Analytics](https://typesense.org/docs/guide/search-analytics.html#search-analytics)
+  * [Updating Typesense Index](https://typesense.org/docs/guide/syncing-data-into-typesense.html#sync-changes-in-bulk-periodically)
 
 ### Performance
 * Video download and processing time: ~0.8 - 1 sec
