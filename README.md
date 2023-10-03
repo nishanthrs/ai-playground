@@ -41,12 +41,16 @@ parallel -j+0 --progress -a links.txt yt-dlp --ffmpeg-location /opt/local/bin/ff
 # -j+0 will run with # jobs = # CPU cores + 0
 # Multiple ::: will generate all combinations of input (via nested loop)
 # Pipe input: find example.* -print | parallel echo File
-# GNU parallel documentation: https://zenodo.org/record/1146014
+# Perf diff on 12 videos in links.txt:
+# W/o parallel: 66.29s user 3.78s system 62% cpu 1:51.28 total
+# W/ parallel: 72.51s user 9.54s system 277% cpu 29.608 total"""
 
 # Convert to 16 khz (whisper.cpp only works on 16-bit wav files)
 ffmpeg -i <input_name>.wav -ar 16000 -ac 1 -c:a pcm_s16le <output_name>.wav
 ```
-[Docs](https://github.com/yt-dlp/yt-dlp#usage-and-options)
+[yt-dlp Docs](https://github.com/yt-dlp/yt-dlp#usage-and-options)
+[GNU Parallel Docs]()
+
 NOTE: Add ffmpeg to path:
 ```
 sudo cp ./ffmpeg /usr/local/bin
