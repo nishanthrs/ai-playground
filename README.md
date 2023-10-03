@@ -49,7 +49,7 @@ parallel -j+0 --progress -a links.txt yt-dlp --ffmpeg-location /opt/local/bin/ff
 ffmpeg -i <input_name>.wav -ar 16000 -ac 1 -c:a pcm_s16le <output_name>.wav
 ```
 [yt-dlp Docs](https://github.com/yt-dlp/yt-dlp#usage-and-options)
-[GNU Parallel Docs]()
+[GNU Parallel Docs](https://www.gnu.org/software/parallel/parallel_tutorial.html)
 
 NOTE: Add ffmpeg to path:
 ```

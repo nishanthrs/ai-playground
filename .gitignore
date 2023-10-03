@@ -1,4 +1,6 @@
+.DS_Store
 env
-sample_audios/
+processed_audios/
+transcriptions/
 whisper.cpp/
 links.txt
