@@ -1,6 +1,7 @@
 # Bash script equivalent at https://github.com/ggerganov/whisper.cpp/blob/master/examples/yt-wsp.sh
 
-from whispercpp import Whisper
+# from whispercpp import Whisper
+from faster_whisper import WhisperModel
 from typing import Any, List
 
 import ffmpeg
@@ -108,10 +109,25 @@ def transcribe_audio_bash(audio_input_filepath: str, output_filepath: str) -> No
         ]
     )
     end_time = time.time()
-    print(f"Transcription time: {end_time - start_time} seconds")
+    print(f"whisper.cpp bash transcription time: {end_time - start_time} seconds")
 
+
+def transcribe_audio_faster_whisper_py(stt_model, audio_input_filepath: str, output_filepath: str) -> None:
+    start_time = time.time()
+    segments, info = stt_model.transcribe(audio_input_filepath, beam_size=5)
+    end_time = time.time()
+    print(segments)
+
+    f = open(output_filepath, "w")
+    for segment in segments:
+        f.write(f"[{segment.start} -> {segment.end}]: {segment.text}\n")
+    f.close()
+    end_time_2 = time.time()
+    print(f"faster-whisper transcription time: {end_time - start_time}")
+    print(f"faster-whisper file writing time: {end_time_2 - end_time}")
 
 def main():
+    # whisper-cpp bash
     # ~3.5 seconds
     download_audio_bash("https://www.youtube.com/watch?v=l-wUKu_V2Lk&ab_channel=WIRED")
     # ~4 seconds
@@ -121,12 +137,21 @@ def main():
     # ~115 seconds
     transcribe_audio_bash("output_1.wav", "output_1")
 
+    # whisper-cpp python API
     # whisper_model = load_stt_model("whisper.cpp/models/ggml-small.en.bin")
     # audio_bits = process_audio_py(
     #     "sample_audios/How Animators Created the Spider-Verse ｜ WIRED [l-wUKu_V2Lk].wav",
     #     "output.wav"
     # )
     # transcribe_audio_py(whisper_model, audio_bits, "How_Animators_Created_the_Spiderverse.txt")
+
+    # faster-whisper python API
+    # model_size = "small.en"
+    # model = WhisperModel(model_size, device="cpu", compute_type="int8")  # Not totally sure if this is 1:1 comparison with whisper.cpp
+    # # ~300 seconds (I thought this model was faster than whisper.cpp??)
+    # transcribe_audio_faster_whisper_py(
+    #     model, "processed_audios/This_CLI_Tool_is_AMAZING_Prime_Reacts-[ry49BZA-tgg].wav", "output_faster_whisper.txt"
+    # )
 
 if __name__ == "__main__":
     main()

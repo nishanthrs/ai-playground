@@ -19,4 +19,6 @@ parallel -j+0 ffmpeg -i "$raw_audios_dir_name/{}" -ar 16000 -ac 1 -c:a pcm_s16le
 # Remove raw audio files
 rm -rf $raw_audios_dir_name
 # Transcribe audio via whisper.cpp model
+# TODO: Think about using the -t option (threads) and multiple args in whisper.cpp CLI: https://github.com/ggerganov/whisper.cpp/issues/22
+# $whisper_cpp_exec_path -m $whisper_cpp_model_path -f processed_audios/Carnegie_Mellon_University_Advanced_Database_Course_Is_a_GREAT_resource_for_Backend_Engineers-\[Vy_9luYaPRM\].wav -t 4 --output-srt
 parallel -j+0 $whisper_cpp_exec_path -m $whisper_cpp_model_path -f "$processed_audios_dir_name/{}" --output-srt --output-file "$transcriptions_dir_name/{.}" ::: $(ls $processed_audios_dir_name)

@@ -20,6 +20,7 @@ whispercpp
 numpy
 openai
 yt-dlp
+faster-whisper
 ```
 NOTE: [`whispercpp` Python bindings lib](https://github.com/aarnphm/whispercpp)
 Use `pip install git+https://github.com/aarnphm/whispercpp.git -vv` to install the latest version.
@@ -27,7 +28,7 @@ Use `pip install git+https://github.com/aarnphm/whispercpp.git -vv` to install t
 ### Run Script:
 ```bash
 source env/bin/activate  # Activate virtual env
-python3 open_ai_embeddings_gen.py
+OMP_NUM_THREADS=4 python3 transcribe_audio.py  # Set # threads via env var: https://github.com/guillaumekln/faster-whisper#comparing-performance-against-other-implementations
 ```
 
 ### Using yt-dlp Audio on Mac M1:
