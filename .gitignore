@@ -2,5 +2,7 @@
 env
 processed_audios/
 transcriptions/
+metadata/
 whisper.cpp/
-links.txt
+pip3
+*.txt

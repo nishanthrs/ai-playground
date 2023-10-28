@@ -1,5 +1,38 @@
 # openai-playground
 
+## Possible Projects
+
+### LectureStream
+1. Async cron job or ETL pipeline that periodically takes new links from links.txt and produces video transcriptions from them
+  * Input: links.txt
+  * Output: SRT files with transcription data of all videos in links.txt
+  * yt-dlp to download video audio and convert to right format
+  * whisper.cpp to transcribe videos with timestamps and spoken words
+  * Can all be done in a bash script with GNU parallel
+2. Script that takes in transcription data and uploads to search DB
+  * Input: SRT files with transcription data
+  * Output: transcription data in search DB
+  * (v1) Upload to [typesense DB](https://typesense.org/docs/guide/tips-for-searching-common-types-of-data.html#long-pieces-of-text) for raw search
+  * (v2) Convert to embeddings and upload to vector DB or SQLite
+    * Look at [Simon Willison's blog post](https://simonwillison.net/2023/Oct/23/embeddings/) for implementation ideas
+3. Web service that provides fast search of all this data
+  * Input: query term
+  * Output: list of videos and timestamps where query term was mentioned
+  * [Axum web service]() and [incorporating multithreading](https://github.com/tokio-rs/tokio/discussions/4839)
+  * (v1) Query typesense DB and output list of timestamps in each video that links to specific part of embedded video
+  * (v2) Query vector DB and give list of similar videos
+  * (v3) Look at [RAG (retrieval augmented generation)](https://github.com/pchunduri6/rag-demystified) to incorporate Q&A interface for educational content
+
+### Other Datasets to Play With:
+* Podcasts
+* Personal notes
+* Personal Github repo
+* Pirated movies/TV shows
+* Anime/manga
+* Work: Workplace posts and videos
+
+## Dependencies and Setup Instructions
+
 ### Authentication:
 Set via env vars in python3 venv:
 ```
@@ -9,7 +42,7 @@ export OPENAI_API_KEY="<openapi_secret_key>"
 ### Install Dependencies:
 ```bash
 source env/bin/activate  # Activate virtual env
-pip3 install <dependency_name>
+python3 -m pip install <dependency_name>
 deactivate
 ```
 

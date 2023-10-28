@@ -15,11 +15,13 @@ def init_search_client() -> typesense.Client:
 
 def init_collection(client: typesense.Client) -> None:
     init_collection_response = client.collections.create({
-        "name": "educational_videos",
+        "name": "educational_video_transcriptions",
         "fields": [
             {"name": "title", "type": "string"},
             {"name": "channel_name", "type": "string"},
             {"name": "publish_date", "type": "string"},
+            {"name": "start_time", "type": "int32"},
+            {"name": "end_time", "type": "int32"},
             {"name": "content", "type": "string"},
         ],
         "default_sorting_field": "publish_date",

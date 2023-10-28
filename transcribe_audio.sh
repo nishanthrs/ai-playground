@@ -8,12 +8,15 @@ whisper_cpp_exec_path="./whisper.cpp/main"
 raw_audios_dir_name="raw_audios"
 processed_audios_dir_name="processed_audios"
 transcriptions_dir_name="transcriptions"
+video_metadata_dir_name="metadata"
 mkdir -p $raw_audios_dir_name
 mkdir -p $processed_audios_dir_name
 mkdir -p $transcriptions_dir_name
+mkdir -p $video_metadata_dir_name
 # Download YT audio data from links.txt as .wav files (by line in parallel)
-parallel -j+0 --progress -a links.txt yt-dlp --ffmpeg-location /opt/local/bin/ffmpeg --extract-audio --audio-format wav --audio-quality 0 --restrict-filenames
+parallel -q -j+0 --progress -a links_subset.txt yt-dlp --ffmpeg-location /opt/local/bin/ffmpeg --extract-audio --audio-format wav --audio-quality 0 --restrict-filenames  --print-to-file "%(.{id,title,channel,upload_date,description,channel_follower_count,view_count,like_count})"s "%(title)s-[%(id)s].json"
 mv *.wav $raw_audios_dir_name/
+mv *.json $video_metadata_dir_name/
 # Convert audio files to 16 khz (whisper.cpp only works on 16-bit wav files)
 parallel -j+0 ffmpeg -i "$raw_audios_dir_name/{}" -ar 16000 -ac 1 -c:a pcm_s16le "$processed_audios_dir_name/{.}.wav" ::: $(ls $raw_audios_dir_name)
 # Remove raw audio files
