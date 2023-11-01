@@ -1,7 +1,7 @@
 # Setup whisper.cpp model path
 # TODO: Add whisper setup cmds in some other setup script
 # git clone git@github.com:ggerganov/whisper.cpp.git
-# bash ./whisper.cpp/models/download-ggml-model.sh $1
+# bash ./whisper.cpp/models/download-ggml-model.sh small.en
 # make ./whisper.cpp
 whisper_cpp_model_path="./whisper.cpp/models/ggml-small.en.bin"
 whisper_cpp_exec_path="./whisper.cpp/main"
@@ -24,9 +24,10 @@ parallel -j+0 ffmpeg -i "$raw_audios_dir_name/{}" -ar 16000 -ac 1 -c:a pcm_s16le
 rm -rf $raw_audios_dir_name
 
 # Transcribe audio via whisper.cpp model
-# Using parallel with this is slower for some reason (~8 mins for links_subset.txt).
-# Most likely reason is that adding more cores/threads doesn't increase perf after a certain point.
-# Looks like memory is the main constraint: https://github.com/ggerganov/whisper.cpp/issues/200#issuecomment-1334103821
-# Multithreaded support is built in; passing in multiple files via -f flag runs much faster (~6-7 mins): https://github.com/ggerganov/whisper.cpp/issues/22
+# Using parallel with this is slower (~8 mins for links_subset.txt):
 # parallel -j+0 $whisper_cpp_exec_path -m $whisper_cpp_model_path -f "$processed_audios_dir_name/{}" --output-srt --output-file "$transcriptions_dir_name/{.}" ::: $(ls $processed_audios_dir_name)
+# Reason is that multiple processes leads to multiple threads in each process competing each other for resources. More details here:
+# https://github.com/ggerganov/whisper.cpp/issues/1408
+# Looks like memory is often the main constraint in training and inference: https://github.com/ggerganov/whisper.cpp/issues/200#issuecomment-1334103821
+# Multithreaded support is built in; passing in multiple files via -f flag runs much faster (~6-7 mins): https://github.com/ggerganov/whisper.cpp/issues/22
 ls $processed_audios_dir_name | xargs -I {} basename {} .wav | xargs -I {} $whisper_cpp_exec_path -t 4 -m $whisper_cpp_model_path -f "$processed_audios_dir_name/{}.wav" --output-srt --output-file "$transcriptions_dir_name/$(basename {})"

@@ -1,5 +1,6 @@
 .DS_Store
 env
+old_env
 processed_audios/
 transcriptions/
 metadata/
