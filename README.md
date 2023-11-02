@@ -18,7 +18,7 @@
 3. Web service that provides fast search of all this data
   * Input: query term
   * Output: list of videos and timestamps where query term was mentioned
-  * [Axum web service]() and [incorporating multithreading](https://github.com/tokio-rs/tokio/discussions/4839)
+  * [Axum web service](https://docs.rs/axum/latest/axum/) and [incorporating multithreading](https://github.com/tokio-rs/tokio/discussions/4839)
   * (v1) Query typesense DB and output list of timestamps in each video that links to specific part of embedded video
   * (v2) Query vector DB and give list of similar videos
   * (v3) Look at [RAG (retrieval augmented generation)](https://github.com/pchunduri6/rag-demystified) to incorporate Q&A interface for educational content
@@ -30,6 +30,8 @@
 * Pirated movies/TV shows
 * Anime/manga
 * Work: Workplace posts and videos
+* Finance news, articles (CNBC, WSJ), docs (10K, 10Q, earnings calls, etc.)
+* SLA/SLO/SLIs metrics bot for developers to monitor service
 
 ## Dependencies and Setup Instructions
 

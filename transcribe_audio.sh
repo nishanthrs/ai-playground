@@ -3,6 +3,11 @@
 # git clone git@github.com:ggerganov/whisper.cpp.git
 # bash ./whisper.cpp/models/download-ggml-model.sh small.en
 # make ./whisper.cpp
+# CoreML support:
+# 1. Create venv with Python3.10
+# 2. Install dependencies (with the right versions!): 3 pip pkgs and Xcode
+# 3. ./whisper.cpp/./models/generate-coreml-model.sh small.en
+# 4. make clean && WHISPER_COREML=1 make -j
 whisper_cpp_model_path="./whisper.cpp/models/ggml-small.en.bin"
 whisper_cpp_exec_path="./whisper.cpp/main"
 # Setup directories for diff audio formats
@@ -14,8 +19,8 @@ mkdir -p $raw_audios_dir_name
 mkdir -p $processed_audios_dir_name
 mkdir -p $transcriptions_dir_name
 mkdir -p $video_metadata_dir_name
-# Download YT audio data from links.txt as .wav files (by line in parallel)
-parallel -q -j+0 --progress -a links_subset.txt yt-dlp --ffmpeg-location /opt/local/bin/ffmpeg --extract-audio --audio-format wav --audio-quality 0 --restrict-filenames  --write-info-json
+# Download YT audio data from links text file as .wav files (by line in parallel)
+parallel -q -j+0 --progress -a $1 yt-dlp --ffmpeg-location /opt/local/bin/ffmpeg --extract-audio --audio-format wav --audio-quality 0 --restrict-filenames  --write-info-json
 mv *.wav $raw_audios_dir_name/
 mv *.info.json $video_metadata_dir_name/
 # Convert audio files to 16 khz (whisper.cpp only works on 16-bit wav files)
@@ -30,4 +35,5 @@ rm -rf $raw_audios_dir_name
 # https://github.com/ggerganov/whisper.cpp/issues/1408
 # Looks like memory is often the main constraint in training and inference: https://github.com/ggerganov/whisper.cpp/issues/200#issuecomment-1334103821
 # Multithreaded support is built in; passing in multiple files via -f flag runs much faster (~6-7 mins): https://github.com/ggerganov/whisper.cpp/issues/22
-ls $processed_audios_dir_name | xargs -I {} basename {} .wav | xargs -I {} $whisper_cpp_exec_path -t 4 -m $whisper_cpp_model_path -f "$processed_audios_dir_name/{}.wav" --output-srt --output-file "$transcriptions_dir_name/$(basename {})"
+# CoreML model on Mac M1 runs even faster! (~3 mins): https://github.com/ggerganov/whisper.cpp#core-ml-support
+ls $processed_audios_dir_name | xargs -I {} basename {} .wav | xargs -I {} $whisper_cpp_exec_path -t 1 -m $whisper_cpp_model_path -f "$processed_audios_dir_name/{}.wav" --output-srt --output-file "$transcriptions_dir_name/$(basename {})"
