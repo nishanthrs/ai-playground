@@ -4,6 +4,8 @@ import pysrt
 import typesense
 
 
+COLLECTION_NAME = "educational_video_transcriptions"
+
 def init_search_client() -> typesense.Client:
     client = typesense.Client({
         "api_key": "xyz",
@@ -18,8 +20,9 @@ def init_search_client() -> typesense.Client:
 
 def init_collection(client: typesense.Client) -> None:
     video_transcription_schema = {
-        "name": "educational_video_transcriptions",
+        "name": COLLECTION_NAME,
         "fields": [
+            {"name": "id", "type": "string"},
             {"name": "video_id", "type": "string"},
             {"name": "title", "type": "string"},
             {"name": "channel", "type": "string"},
@@ -47,13 +50,14 @@ def sync_caption_data_to_collection(client: typesense.Client) -> None:
     metadata_filenames = [os.path.basename(filename).rsplit('.', maxsplit=1)[0].rsplit('.', maxsplit=1)[0] for filename in metadata_json_filepaths]
     transcription_filenames = [os.path.basename(filename).rsplit('.', maxsplit=1)[0] for filename in transcription_filepaths]
     print(
-        f"Metadata but not in transcriptions: {len(metadata_filenames), len(transcription_filenames), set(metadata_filenames) - set(transcription_filenames), set(transcription_filenames) - set(metadata_filenames)}"
+        f"Metadata but not in transcriptions: {len(metadata_filenames), len(transcription_filenames), set(metadata_filenames) - set(transcription_filenames)}"
     )
     # NOTE: When downloading playlists, the playlist metadata is downloaded as well. Thus, the # metadata files = # playlists + # transcriptions
     # We should just log this info, but not throw an error here.
     # assert len(metadata_json_filepaths) == len(transcription_filepaths), f"# metadata files: {len(metadata_json_filepaths)} is different from # transcription files: {len(transcription_filepaths)}. Something went wrong in the bash script to transcribe audio!"
 
     # video_data_filepaths = zip(metadata_json_filepaths, transcription_filepaths)
+    expected_num_docs = 0
     for transcription_filepath in transcription_filepaths:
         filename = os.path.basename(transcription_filepath).rsplit('.', maxsplit=1)[0]
         metadata_filepath = metadata_json_filepaths[
@@ -68,6 +72,7 @@ def sync_caption_data_to_collection(client: typesense.Client) -> None:
         try:
             video_transcription_docs = [
                 {
+                    "id": f"{video_metadata['id']}_{sub_num}",
                     "video_id": video_metadata["id"],
                     "title": video_metadata["title"],
                     "channel": video_metadata["channel"],
@@ -79,25 +84,43 @@ def sync_caption_data_to_collection(client: typesense.Client) -> None:
                     "end_time": (sub.end.hours * 3600) + (sub.end.minutes * 60) + sub.end.seconds,
                     "content": sub.text
                 }
-                for sub in transcription_data
+                for sub_num, sub in enumerate(transcription_data)
             ]
+            expected_num_docs += len(video_transcription_docs)
         except KeyError as e:
             print(f"Could not find key {e} in metadata file {metadata_filepath}. Skipping this video.")
+            continue
 
-        typesense_client.collections["educational_video_transcriptions"].documents.import_(video_transcription_docs, {"action": "upsert"})
+        # For some dumbass reason, the Typesense import endpoint always returns a HTTP 200 OK response, even if the import failed
+        # So we have to manually check the response to see if it's successful: https://typesense.org/docs/0.22.2/api/documents.html#index-multiple-documents
+        responses = typesense_client.collections[COLLECTION_NAME].documents.import_(
+            video_transcription_docs, {"action": "upsert"}
+        )
+        for response in responses:
+            if not response["success"]:
+                print(f"Failed to index doc: {response}")
+
+    actual_num_docs = client.collections[COLLECTION_NAME].retrieve()['num_documents']
+    assert expected_num_docs == actual_num_docs, f"Expected {expected_num_docs} documents, only inserted {actual_num_docs}"
 
 
 if __name__ == "__main__":
     typesense_client = init_search_client()
-    # typesense_client.collections["educational_video_transcriptions"].delete()
+    # typesense_client.collections[COLLECTION_NAME].delete()
+
     try:
         init_collection(typesense_client)
     except typesense.exceptions.ObjectAlreadyExists:
         pass
-    sync_caption_data_to_collection(typesense_client)
-    search_data = typesense_client.collections["educational_video_transcriptions"].documents.search({"q": "GNU parallel", "query_by": "content", "sort_by": "start_time:asc"})
-    print(f"{search_data['found']} search results for GNU parallel:")
+
+    # sync_caption_data_to_collection(typesense_client)
+
+    search_data = typesense_client.collections[COLLECTION_NAME].documents.search(
+        {"q": "distributed", "query_by": "content", "sort_by": "start_time:asc", "page": 1, "per_page": 25}
+    )
+    print(f"Search data: {search_data, len(search_data['hits'])}")
+    print(f"{search_data['found']} search results for distributed:")
     for doc_data in search_data['hits']:
         doc = doc_data['document']
-        print(f"{doc['start_time']} - {doc['end_time']}: {doc['content']}")
+        print(f"{doc['title']} : {doc['start_time']} - {doc['end_time']} : {doc['content']}")
     # print(f"{search_data['found']} search results for GNU parallel: {[(doc['document']['start_time'], doc['document']['end_time'], doc['document']['content']) for doc in search_data['hits']]}")
