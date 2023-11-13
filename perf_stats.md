@@ -4,7 +4,7 @@
 
 ## whisper.cpp CoreML model on links.txt (12 links, ~11 hours of audio)
 
-Machine Specs: Apple M1 Pro, 16 GB RAM, 512 GB disk, 14-core GPU, Metal 3
+Machine Specs: Apple M1 Pro, 16 GB RAM, 512 GB disk, 8-core CPU 14-core GPU, Metal 3
 
 whisper_print_timings:     load time =   203.15 ms
 whisper_print_timings:     fallbacks =   0 p /   0 h
@@ -20,3 +20,11 @@ ggml_metal_free: deallocating
 The Apple M1 ARM silicon chip is so freaking good. Amazing that ML model inference can be run on consumer-grade devices.
 
 *NOTE: The normal whisper.cpp model would hang the entire laptop and take an indefinite amount of time to process this much audio. On a smaller sample size of 4 links and ~1.5 hours of audio, it would take ~6 mins.*
+
+## whisper.cpp CoreML model on cs_lectures_playlists_links.txt
+
+Machine Specs: Apple M1 Pro, 16 GB RAM, 512 GB disk, 8-core CPU 14-core GPU, Metal 3
+
+./transcribe_audio.sh cs_lectures_playlists_links.txt  3273.00s user 369.36s system 5% cpu 18:53:10.29 total
+
+It took ~19 hours! But in that time, the laptop ran fine, I could work on other things, and the battery barely drained.

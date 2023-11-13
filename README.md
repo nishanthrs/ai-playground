@@ -9,7 +9,7 @@
   * yt-dlp to download video audio and convert to right format
   * whisper.cpp to transcribe videos with timestamps and spoken words
   * Can all be done in a bash script with GNU parallel
-2. Script that takes in transcription data and uploads to search DB
+2. Async cron job or ETL pipeline that takes in transcription data and uploads to search DB
   * Input: SRT files with transcription data
   * Output: transcription data in search DB
   * (v1) Upload to [typesense DB](https://typesense.org/docs/guide/tips-for-searching-common-types-of-data.html#long-pieces-of-text) for raw search
@@ -30,21 +30,18 @@
 * Pirated movies/TV shows
 * Anime/manga
 * Work: Workplace posts and videos
-* Finance news, articles (CNBC, WSJ), docs (10K, 10Q, earnings calls, etc.)
+* Finance news (Nikkei), podcasts, articles (CNBC, WSJ), docs (10K, 10Q, earnings calls, etc.)
 * SLA/SLO/SLIs metrics bot for developers to monitor service
+* Gov docs on laws, transportation, urban planning, etc.
 
 ## Dependencies and Setup Instructions
 
-### Authentication:
-Set via env vars in python3 venv:
-```
-export OPENAI_API_KEY="<openapi_secret_key>"
-```
-
-### Install Dependencies:
+### Setup VEnv and Install Dependencies:
 ```bash
+python3.10 -m venv <env_name>
 source env/bin/activate  # Activate virtual env
 python3 -m pip install <dependency_name>
+python3 -m pip freeze > requirements.txt  # Get curr list of deps in python venv and output to requirements.txt file
 deactivate
 ```
 
@@ -109,12 +106,17 @@ make
 * Followed [installation docs](https://typesense.org/docs/guide/install-typesense.html#mac-via-homebrew)
 * Start typesense server:
 ```
+export TYPESENSE_API_KEY=xyz
 ./typesense-server --data-dir=$(pwd)/typesense-data --api-key=$TYPESENSE_API_KEY --enable-cors
 ```
 * Install Python client: `pip3 install typesense`
 * Future resources to look into:
   * [Search Analytics](https://typesense.org/docs/guide/search-analytics.html#search-analytics)
   * [Updating Typesense Index](https://typesense.org/docs/guide/syncing-data-into-typesense.html#sync-changes-in-bulk-periodically)
+
+### Benchmarking Tools
+* [rewrk](https://github.com/lnx-search/rewrk)
+* [k6.js](https://k6.io/blog/learning-js-through-load-testing/)
 
 ### Performance
 * Video download and processing time: ~0.8 - 1 sec
