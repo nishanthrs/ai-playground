@@ -93,6 +93,12 @@ export PATH="/usr/local/bin:$PATH"
 which ffmpeg
 ```
 
+```bash
+# Get a list of videos from MIT OCW channel, filter out video titles via regex, and output video IDs to `cs_math_fin_mit_ocw_video_titles.txt`
+./gen_video_ids.sh "https://www.youtube.com/@mitocw" "6.*|15.*|18.*" cs_math_fin_mit_ocw_video_ids.txt
+# Takes ~1 min; this can then be fed into transcribe_audio.sh bash script to download only the audios we want
+```
+
 ### Using whisper.cpp on Mac M1:
 ```bash
 bash ./models/download-ggml-model.sh <model_name>
