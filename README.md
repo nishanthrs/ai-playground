@@ -94,9 +94,10 @@ which ffmpeg
 ```
 
 ```bash
-# Get a list of videos from MIT OCW channel, filter out video titles via regex, and output video IDs to `cs_math_fin_mit_ocw_video_titles.txt`
-./gen_video_ids.sh "https://www.youtube.com/@mitocw" "6.*|15.*|18.*" cs_math_fin_mit_ocw_video_ids.txt
-# Takes ~1 min; this can then be fed into transcribe_audio.sh bash script to download only the audios we want
+# Get a list of videos from MIT OCW channel, only get video titles with "6." or "18." (CS or math) via grep, and output video IDs to `cs_math_fin_mit_ocw_video_titles.txt`
+# Thanks to ChatGPT for helping me with determining the correct regex expression lol
+./gen_video_ids.sh "https://www.youtube.com/@mitocw/playlists" "\s(6\.|18\.)" cs_math_mit_ocw_playlist_titles.txt
+# Takes ~5 secs; this can then be fed into transcribe_audio.sh bash script to download only the audios we want
 ```
 
 ### Using whisper.cpp on Mac M1:
