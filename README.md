@@ -96,8 +96,12 @@ which ffmpeg
 ```bash
 # Get a list of videos from MIT OCW channel, only get video titles with "6." or "18." (CS or math) via grep, and output video IDs to `cs_math_fin_mit_ocw_video_titles.txt`
 # Thanks to ChatGPT for helping me with determining the correct regex expression lol
-./gen_video_ids.sh "https://www.youtube.com/@mitocw/playlists" "\s(6\.|18\.)" cs_math_mit_ocw_playlist_titles.txt
+./gen_video_ids.sh "https://www.youtube.com/@mitocw/playlists" "\s(6\.|18\.)" cs_math_mit_ocw_playlist_ids.txt 10
 # Takes ~5 secs; this can then be fed into transcribe_audio.sh bash script to download only the audios we want
+
+# Download, process, and transcribe audio data from directory of files
+./transcribe_audio.sh playlist_ids_files > download_logs.log 2> download_error_logs.log
+# Performance is constrained by network bandwidth and CPU/GPU(M1) chip
 ```
 
 ### Using whisper.cpp on Mac M1:

@@ -4,6 +4,8 @@ old_env
 processed_audios/
 transcriptions/
 metadata/
+playlist_ids_files/
 whisper.cpp/
 pip3
 *.txt
+*.log
